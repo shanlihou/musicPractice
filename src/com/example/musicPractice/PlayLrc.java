@@ -62,6 +62,7 @@ public class PlayLrc
             if (time > now + 500)
                 return null;
             if ((time <= now + 500) && (time >= now -500)){
+                cur = i;
                 return (String)map.get("content");
             }
         }
