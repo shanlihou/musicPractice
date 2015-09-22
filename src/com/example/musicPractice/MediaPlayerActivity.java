@@ -41,6 +41,8 @@ public class MediaPlayerActivity extends Activity
     TextView filenameTv;
     TextView txtLrc;// ���
     PlayLrc lyric;
+    MyVolumeReceiver mVolumeReceiver;
+    boolean destroy = false;
     // ���̼߳������ȵĸı�
     private Runnable thread = new Runnable()
     {
@@ -50,7 +52,9 @@ public class MediaPlayerActivity extends Activity
             updateTextView();
             playNext(true);
             showLrc();
-            handler.postDelayed(thread, 1000);
+            if (!destroy)
+                handler.postDelayed(thread, 1000);
+
         }
     };
 
@@ -200,6 +204,25 @@ public class MediaPlayerActivity extends Activity
                 play.setImageResource(R.drawable.pause);
             }
         });
+        btLast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                long time = lyric.getLastTime();
+                mp.seekTo((int)time);
+                showLrc();
+                bar.setProgress((int)time);
+            }
+        });
+
+        btNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                long time = lyric.getNextTime();
+                mp.seekTo((int)time);
+                showLrc();
+                bar.setProgress((int)time);
+            }
+        });
         myRegisterReceiver();
 
     }
@@ -231,6 +254,8 @@ public class MediaPlayerActivity extends Activity
     {
         mp.release();
         mp = null;
+        unregisterReceiver(mVolumeReceiver);
+        destroy = true;
         super.onDestroy();
     }
 
@@ -304,15 +329,18 @@ public class MediaPlayerActivity extends Activity
      */
     private void showLrc()
     {
-        int now = mp.getCurrentPosition();
-        String lyStr = lyric.getContent(now);
-        if (lyStr != null) {
-            txtLrc.setText(lyStr);
+        if (mp != null){
+            int now = mp.getCurrentPosition();
+            String lyStr = lyric.getContent(now);
+            if (lyStr != null) {
+                txtLrc.setText(lyStr);
+            }
         }
+
     }
 
     private void myRegisterReceiver(){
-        MyVolumeReceiver mVolumeReceiver = new MyVolumeReceiver() ;
+        mVolumeReceiver = new MyVolumeReceiver();
         IntentFilter filter = new IntentFilter() ;
         filter.addAction("android.media.VOLUME_CHANGED_ACTION") ;
         registerReceiver(mVolumeReceiver, filter) ;

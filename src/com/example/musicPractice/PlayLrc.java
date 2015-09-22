@@ -3,6 +3,8 @@ package com.example.musicPractice;
 /**
  * Created by root on 15-9-17.
  */
+import android.util.Log;
+
 import java.io.*;
 import java.util.*;
 
@@ -30,28 +32,33 @@ public class PlayLrc
             String con = "";
             while ((con = br.readLine()) != null)
             {
-                sb.append(con + "\n");
+                Log.d("shanlihou", con);
+                long time = timeToInt(con);
+                Log.d("shanlihou", time + "");
+                if (time != -1){
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("time", time);
+                    map.put("content", con.substring(con.indexOf(']') + 1));
+                    lyric.add(map);
+                }
             }
             br.close();
         } catch (Exception e)
         {
             e.printStackTrace();
         }
-        BufferedReader br = new BufferedReader(new StringReader(sb.toString()));
-        try{
-            String line;
-            while((line = br.readLine()) != null){
-                long time = timeToInt(line);
-                if (time != -1){
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("time", time);
-                    map.put("content", line.substring(line.indexOf(']') + 1));
-                    lyric.add(map);
-                }
-            }
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
+
+    }
+
+    public long getLastTime(){
+        if (cur < 1)
+            cur = 1;
+        return (long)lyric.get(cur - 1).get("time");
+    }
+    public long getNextTime(){
+        if (cur >= lyric.size() - 1)
+            cur = lyric.size() - 2;
+        return (long)lyric.get(cur + 1).get("time");
     }
 
     public String getContent(int now){
@@ -78,6 +85,8 @@ public class PlayLrc
         long sec = 0;
         long ms = 0;
         char c;
+        if (time.length() < 10)
+            return -1;
         if (time.charAt(0) != '['){
             return -1;
         }
