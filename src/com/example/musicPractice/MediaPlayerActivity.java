@@ -11,24 +11,19 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.*;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.FileInputStream;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by root on 15-9-17.
  */
 
 
-public class MediaPlayerActivity extends Activity
-{
+public class MediaPlayerActivity extends Activity {
     MediaPlayer mp;
     SeekBar bar;
     SeekBar vbar;
@@ -44,11 +39,9 @@ public class MediaPlayerActivity extends Activity
     MyVolumeReceiver mVolumeReceiver;
     boolean destroy = false;
     // ���̼߳������ȵĸı�
-    private Runnable thread = new Runnable()
-    {
+    private Runnable thread = new Runnable() {
         @Override
-        public void run()
-        {
+        public void run() {
             updateTextView();
             playNext(true);
             showLrc();
@@ -59,17 +52,15 @@ public class MediaPlayerActivity extends Activity
     };
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.media);
         filenameTv = (TextView) findViewById(R.id.filename);
         allTime = (TextView) findViewById(R.id.all);
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
-        {
-            path = Environment.getExternalStorageDirectory();
-        } else
-        {
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            //path = Environment.getExternalStorageDirectory();
+            path = new File(this.getIntent().getStringExtra("filePath"));
+        } else {
             Toast.makeText(this, "�����sdcard", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -88,23 +79,18 @@ public class MediaPlayerActivity extends Activity
         currentTime = (TextView) findViewById(R.id.current);
         currentTime.setText("0:00");
         new Thread(thread).start();
-        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-        {
+        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
+            public void onStopTrackingTouch(SeekBar seekBar) {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar)
-            {
+            public void onStartTrackingTouch(SeekBar seekBar) {
             }
 
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-            {
-                if (fromUser)
-                {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
                     mp.seekTo(progress);
                 }
             }
@@ -114,21 +100,17 @@ public class MediaPlayerActivity extends Activity
         final AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         vbar.setMax(am.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
         vbar.setProgress(am.getStreamVolume(AudioManager.STREAM_MUSIC));
-        vbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener()
-        {
+        vbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar)
-            {
+            public void onStopTrackingTouch(SeekBar seekBar) {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar)
-            {
+            public void onStartTrackingTouch(SeekBar seekBar) {
             }
 
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-            {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 am.setStreamVolume(AudioManager.STREAM_MUSIC, vbar.getProgress(), 0);
             }
         });
@@ -136,56 +118,45 @@ public class MediaPlayerActivity extends Activity
         final ImageView pre = (ImageView) findViewById(R.id.pre);
         final ImageView next = (ImageView) findViewById(R.id.next);
         final ImageView stop = (ImageView) findViewById(R.id.stop);
-        final Button btLast = (Button)findViewById(R.id.bLastSong);
-        final Button btNext = (Button)findViewById(R.id.btNextSong);
+        final Button btLast = (Button) findViewById(R.id.bLastSong);
+        final Button btNext = (Button) findViewById(R.id.btNextSong);
 
         ImageView volumn = (ImageView) findViewById(R.id.volumn);
 
         // ����
-        play.setOnClickListener(new View.OnClickListener()
-        {
+        play.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
-                if (!mp.isPlaying())
-                {
+            public void onClick(View v) {
+                if (!mp.isPlaying()) {
                     mp.start();
                     play.setImageResource(R.drawable.pause);
 
-                } else if (mp.isPlaying())
-                {
+                } else if (mp.isPlaying()) {
                     mp.pause();
                     play.setImageResource(R.drawable.play);
                 }
             }
         });
         // ֹͣ
-        stop.setOnClickListener(new View.OnClickListener()
-        {
+        stop.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 mp.stop();
                 play.setImageResource(R.drawable.play);
-                try
-                {
+                try {
                     mp.prepare();
-                } catch (Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
         // ��һ��
-        pre.setOnClickListener(new View.OnClickListener()
-        {
+        pre.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 int pos = files.indexOf(currentfile);
-                if (pos - 1 >= 0)
-                {
+                if (pos - 1 >= 0) {
                     play(files.get(pos - 1));
                     mp.start();
                     play.setImageResource(R.drawable.pause);
@@ -194,11 +165,9 @@ public class MediaPlayerActivity extends Activity
             }
         });
         // ��һ��
-        next.setOnClickListener(new View.OnClickListener()
-        {
+        next.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 // ������һ�׸�
                 playNextMusic();
                 play.setImageResource(R.drawable.pause);
@@ -208,9 +177,9 @@ public class MediaPlayerActivity extends Activity
             @Override
             public void onClick(View view) {
                 long time = lyric.getLastTime();
-                mp.seekTo((int)time);
+                mp.seekTo((int) time);
                 showLrc();
-                bar.setProgress((int)time);
+                bar.setProgress((int) time);
             }
         });
 
@@ -218,9 +187,9 @@ public class MediaPlayerActivity extends Activity
             @Override
             public void onClick(View view) {
                 long time = lyric.getNextTime();
-                mp.seekTo((int)time);
+                mp.seekTo((int) time);
                 showLrc();
-                bar.setProgress((int)time);
+                bar.setProgress((int) time);
             }
         });
         myRegisterReceiver();
@@ -228,14 +197,14 @@ public class MediaPlayerActivity extends Activity
     }
 
     // ����
-    private void play(String filename)
-    {
+    private void play(String filename) {
         mp.reset();
-        try
-        {
+        try {
             // Log.i("MediaPlayerActivity","�ļ��ڴ棺"+files.size()+"");
             // Log.i("MediaPlayerActivity", "��һ�׸裺"+filename);
-            mp.setDataSource(path + "/" + filename);
+            File file = new File(path + "/" + filename);
+            FileInputStream fis = new FileInputStream(file);
+            mp.setDataSource(fis.getFD());
             currentfile = filename;
             filenameTv.setText(currentfile);
             mp.prepare();
@@ -243,15 +212,14 @@ public class MediaPlayerActivity extends Activity
             int s = m / 60;
             int add = m % 60;
             allTime.setText(s + ":" + add);
+            Log.d("shanlihou", "will set\n");
             lyric = new PlayLrc(path, currentfile);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void onDestroy()
-    {
+    public void onDestroy() {
         mp.release();
         mp = null;
         unregisterReceiver(mVolumeReceiver);
@@ -262,10 +230,8 @@ public class MediaPlayerActivity extends Activity
     /**
      * ���½���
      */
-    private void updateTextView()
-    {
-        if (mp != null)
-        {
+    private void updateTextView() {
+        if (mp != null) {
             int m = mp.getCurrentPosition() / 1000;
             int s = m / 60;
             int add = m % 60;
@@ -280,18 +246,13 @@ public class MediaPlayerActivity extends Activity
     /**
      * ������һ��
      *
-     * @param flag
-     *            true:��ʾ�Զ�������һ��
+     * @param flag true:��ʾ�Զ�������һ��
      */
-    private void playNext(boolean flag)
-    {
-        if (!flag)
-        {
+    private void playNext(boolean flag) {
+        if (!flag) {
             playNextMusic();
-        } else
-        {
-            if (currentTime.getText().equals(allTime.getText()))
-            {
+        } else {
+            if (currentTime.getText().equals(allTime.getText())) {
                 playNextMusic();
             }
         }
@@ -300,15 +261,12 @@ public class MediaPlayerActivity extends Activity
     /**
      * ����һ�׸�
      */
-    private void playNextMusic()
-    {
+    private void playNextMusic() {
         int pos = files.indexOf(currentfile);
-        if (pos + 1 < files.size())
-        {
+        if (pos + 1 < files.size()) {
             play(files.get(pos + 1));
             mp.start();
-        } else
-        {
+        } else {
             play(files.get(0));
             mp.start();
         }
@@ -318,8 +276,7 @@ public class MediaPlayerActivity extends Activity
     /**
      * �жϸ���Ƿ����
      */
-    private void isExistLrc()
-    {
+    private void isExistLrc() {
         if (lyric.getLength() == 0)
             txtLrc.setText("no lyric");
     }
@@ -327,9 +284,8 @@ public class MediaPlayerActivity extends Activity
     /**
      * ��ʾ���
      */
-    private void showLrc()
-    {
-        if (mp != null){
+    private void showLrc() {
+        if (mp != null) {
             int now = mp.getCurrentPosition();
             String lyStr = lyric.getContent(now);
             if (lyStr != null) {
@@ -339,22 +295,23 @@ public class MediaPlayerActivity extends Activity
 
     }
 
-    private void myRegisterReceiver(){
+    private void myRegisterReceiver() {
         mVolumeReceiver = new MyVolumeReceiver();
-        IntentFilter filter = new IntentFilter() ;
-        filter.addAction("android.media.VOLUME_CHANGED_ACTION") ;
-        registerReceiver(mVolumeReceiver, filter) ;
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.media.VOLUME_CHANGED_ACTION");
+        registerReceiver(mVolumeReceiver, filter);
     }
 
     /**
      * 处理音量变化时的界面显示
+     *
      * @author long
      */
     private class MyVolumeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             //如果音量发生变化则更改seekbar的位置
-            if(intent.getAction().equals("android.media.VOLUME_CHANGED_ACTION")){
+            if (intent.getAction().equals("android.media.VOLUME_CHANGED_ACTION")) {
                 final AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                 vbar.setProgress(am.getStreamVolume(AudioManager.STREAM_MUSIC));
             }

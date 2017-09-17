@@ -10,8 +10,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.util.Map;
-
 /**
  * Created by Administrator on 2015/1/17 0017.
  */
@@ -27,7 +25,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public final static String FIELD_KEY = "key";
 
     public final static String FIELD_VALUE = "value";
-    public DBHelper(Context context){
+
+    public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -53,13 +52,13 @@ public class DBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public String getByKey(String key){
+    public String getByKey(String key) {
         String ret = null;
         SQLiteDatabase db;
         db = this.getReadableDatabase();
         String sql = "select * from " + TABLE_NAME_MUSIC + " where " + FIELD_KEY + " = ?";
         Cursor cursor = db.rawQuery(sql, new String[]{key});
-        while(cursor.moveToNext()){
+        while (cursor.moveToNext()) {
             ret = cursor.getString(cursor.getColumnIndex(FIELD_VALUE));
         }
         return ret;
@@ -78,21 +77,21 @@ public class DBHelper extends SQLiteOpenHelper {
         };
         db.delete(TABLE_NAME_MUSIC, where, whereValue);
     }
-    public void deleteAll(int id){
+
+    public void deleteAll(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME_MUSIC, null, null);
     }
 
 
-
-    public void showDB(){
+    public void showDB() {
         Cursor cursor = query();
-        if (cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 String key = cursor.getString(1);
                 String value = cursor.getString(2);
                 Log.d("shanlihou", key + ":" + value);
-            }while(cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
     }
 
