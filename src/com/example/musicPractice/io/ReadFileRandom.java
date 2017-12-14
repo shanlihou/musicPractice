@@ -33,9 +33,11 @@ public class ReadFileRandom {
 	public ReadFileRandom(String path) {
 		String tag = "ReadFileRandom";
 		this.filePath = path;
+		Log.d("shanlihou", "path is:" + filePath);
 		try {
 		//	randomAccessFile = new RandomAccessFile(filePath,"rw");
 			dataInputStream = new DataInputStream(new FileInputStream(filePath));
+			Log.d("shanlihou", dataInputStream + "");
 		} catch (FileNotFoundException e) {
 			Log.d(tag, "Exception :"+e.getMessage());
 		}

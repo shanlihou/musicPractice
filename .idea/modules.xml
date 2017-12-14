@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/musicPractice.iml" filepath="$PROJECT_DIR$/musicPractice.iml" />
-      <module fileurl="file://$PROJECT_DIR$/musicPratice.iml" filepath="$PROJECT_DIR$/musicPratice.iml" />
+      <module fileurl="file://$PROJECT_DIR$/musicPritace.iml" filepath="$PROJECT_DIR$/musicPritace.iml" />
     </modules>
   </component>
 </project>

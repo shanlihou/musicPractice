@@ -66,6 +66,40 @@ public class ReadFile {
 	 *            u wanna read data size
 	 * @return
 	 */
+	public StringBuilder read(int len){
+		byte abyte0[] = null;
+		abyte0 = new byte[len];
+
+		long l = mFile.length();//get file length
+
+		StringBuilder sbRet = new StringBuilder();
+		while(sbRet.length() < len){
+			int need = len - sbRet.length();
+			if (mOffset + need > (int) l){
+				need = (int) (l - mOffset);
+			}
+
+			try{
+				mDataInputStream.read(abyte0, 0, need);
+				mOffset += need;
+			}catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			for (int i = 0; i < need; i++){
+				char x = (char)abyte0[i];
+				if ((x > 32 && x < 127) || x == '\n' || x == '\r' || x == ' '){
+					sbRet.append(x);
+				}
+			}
+
+			if (mOffset >= l){
+				break;
+			}
+		}
+		return sbRet;
+	}
+	/*
 	public byte[] read(int len) {
 		
 		if (isDirectory()) {//is a directory?
@@ -119,7 +153,7 @@ public class ReadFile {
 		}
 		System.gc();
 		return abyte0;
-	}
+	}*/
 
 	
 	/**
